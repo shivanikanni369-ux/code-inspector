@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}API token · Code Inspector{% endblock %}
+{% block content %}
+  <h1>API token</h1>
+  <p class="sub">Use this instead of your password when calling the REST API.</p>
+
+  <div class="card">
+    <label>Your token</label>
+    <input type="text" value="{{ token }}" readonly onclick="this.select()">
+    <p class="help">
+      Send it as an <code>Authorization</code> header:
+      <code>Authorization: Token {{ token }}</code>
+    </p>
+    <pre class="snippet">curl -H "Authorization: Token {{ token }}" http://127.0.0.1:8000/api/scans/</pre>
+  </div>
+
+  <div class="card">
+    <p class="help">
+      Regenerating replaces this token. Anything using the old one (scripts, CI, Postman)
+      will need the new value.
+    </p>
+    <form method="post" action="{% url 'api_token_regenerate' %}"
+          onsubmit="return confirm('Regenerate your API token? The old one will stop working immediately.');">
+      {% csrf_token %}
+      <button class="btn ghost" type="submit">Regenerate token</button>
+    </form>
+  </div>
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}New scan - Code Inspector{% endblock %}
+{% block content %}
+<h1>New scan</h1>
+<p class="sub">Paste code, upload a file or ZIP, or point at a public GitHub repo. The tool reads your code as text and checks it for security problems and code-quality issues. It never runs your code.</p>
+
+<div class="card">
+  <form method="post" enctype="multipart/form-data">{% csrf_token %}
+    {% if form.non_field_errors %}<div class="errors">{{ form.non_field_errors }}</div>{% endif %}
+    {% for field in form %}
+      <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+      {{ field }}
+      {% if field.help_text %}<div class="help">{{ field.help_text }}</div>{% endif %}
+      {{ field.errors }}
+    {% endfor %}
+    <p class="note">Limits: 500 KB per file, 3 MB and 300 files per ZIP. Python gets the deepest checks; JavaScript, PHP, HTML and config files are checked for secrets and common web risks.</p>
+    <p><button class="btn" type="submit">Run scan</button></p>
+  </form>
+</div>
+{% endblock %}

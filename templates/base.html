@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Code Inspector{% endblock %}</title>
+  <style>
+    :root { --ink:#1d2433; --muted:#5b6478; --line:#e3e7ef; --bg:#f6f7fb; --card:#fff; --brand:#2f5bea;
+            --high:#b42318; --high-bg:#fee4e2; --med:#b54708; --med-bg:#fef0c7; --low:#175cd3; --low-bg:#d1e9ff; }
+    * { box-sizing: border-box; }
+    body { margin:0; font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; color:var(--ink); background:var(--bg); }
+    a { color:var(--brand); text-decoration:none; } a:hover { text-decoration:underline; }
+    .nav { background:var(--card); border-bottom:1px solid var(--line); }
+    .nav .in { max-width:980px; margin:0 auto; padding:12px 20px; display:flex; align-items:center; gap:20px; }
+    .brand { font-weight:700; color:var(--ink); } .spacer { flex:1; }
+    .nav form { margin:0; }
+    button.link { background:none; border:0; color:var(--brand); font:inherit; cursor:pointer; padding:0; }
+    main { max-width:980px; margin:0 auto; padding:28px 20px 60px; }
+    h1 { margin:0 0 6px; font-size:26px; } h2 { font-size:19px; margin:26px 0 10px; }
+    .sub { color:var(--muted); margin:0 0 22px; }
+    .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:18px 20px; margin-bottom:16px; }
+    .btn { display:inline-block; background:var(--brand); color:#fff; border:0; border-radius:8px; padding:9px 16px; font:inherit; font-weight:600; cursor:pointer; }
+    .btn:hover { text-decoration:none; filter:brightness(1.08); }
+    .btn.ghost { background:#fff; color:var(--ink); border:1px solid var(--line); }
+    .btn.danger { background:#fff; color:var(--high); border:1px solid #f3c1bc; }
+    table { width:100%; border-collapse:collapse; } th,td { text-align:left; padding:10px 8px; border-bottom:1px solid var(--line); }
+    th { font-size:13px; color:var(--muted); font-weight:600; }
+    .pill { display:inline-block; padding:1px 9px; border-radius:99px; font-size:12px; font-weight:700; }
+    .pill.high { color:var(--high); background:var(--high-bg); } .pill.medium { color:var(--med); background:var(--med-bg); }
+    .pill.low { color:var(--low); background:var(--low-bg); } .pill.cat { color:var(--muted); background:#eef0f6; font-weight:600; }
+    .grade { display:inline-flex; align-items:center; justify-content:center; width:34px; height:34px; border-radius:50%; font-weight:800; color:#fff; }
+    .grade.A,.grade.B { background:#12805c; } .grade.C { background:#c58a00; } .grade.D { background:#d9691a; } .grade.F { background:var(--high); }
+    label { display:block; font-weight:600; margin:14px 0 4px; } .help { color:var(--muted); font-size:14px; margin-top:3px; }
+    input[type=text], input[type=password], textarea { width:100%; padding:9px 11px; border:1px solid #cfd5e3; border-radius:8px; font:inherit; background:#fff; }
+    textarea { font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:14px; }
+    .errors, .errorlist { color:var(--high); list-style:none; padding:0; margin:6px 0; font-size:14px; }
+    .msg { background:#e8f7ef; border:1px solid #b6e3cb; color:#0d5b3e; padding:10px 14px; border-radius:8px; margin-bottom:16px; }
+    .stats { display:flex; gap:16px; flex-wrap:wrap; align-items:center; }
+    .score { font-size:44px; font-weight:800; line-height:1; } .score small { font-size:16px; color:var(--muted); font-weight:600; }
+    .bar { display:flex; align-items:center; gap:10px; margin:6px 0; font-size:14px; } .bar .lbl { width:64px; color:var(--muted); }
+    .bar .track { flex:1; height:10px; background:#eef0f6; border-radius:99px; overflow:hidden; } .bar .fill { height:100%; }
+    .fill.high { background:var(--high); } .fill.medium { background:#e08a1e; } .fill.low { background:#4a8af4; }
+    .issue h3 { margin:6px 0 2px; font-size:16px; } .where { font-family:ui-monospace,Menlo,Consolas,monospace; font-size:13px; color:var(--muted); }
+    pre.snippet { background:#101828; color:#e6edf7; padding:10px 12px; border-radius:8px; overflow-x:auto; font-size:13px; margin:8px 0; }
+    .fix { background:#eefaf3; border-left:3px solid #12805c; padding:8px 12px; border-radius:4px; font-size:14px; }
+    .filters a { margin-right:12px; } .filters a.on { font-weight:700; color:var(--ink); }
+    .note { color:var(--muted); font-size:14px; }
+  </style>
+</head>
+<body>
+  <nav class="nav"><div class="in">
+    <a class="brand" href="{% url 'dashboard' %}">Code Inspector</a>
+    {% if user.is_authenticated %}
+      <a href="{% url 'dashboard' %}">My scans</a>
+      <a href="{% url 'new_scan' %}">New scan</a>
+      <a href="{% url 'api_token' %}">API token</a>
+      <span class="spacer"></span>
+      <span class="note">{{ user.get_username }}</span>
+      <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button class="link" type="submit">Log out</button></form>
+    {% else %}
+      <span class="spacer"></span>
+      <a href="{% url 'login' %}">Log in</a>
+      <a href="{% url 'signup' %}">Sign up</a>
+    {% endif %}
+  </div></nav>
+  <main>
+    {% for message in messages %}<div class="msg">{{ message }}</div>{% endfor %}
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>

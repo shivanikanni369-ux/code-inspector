@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Log in - Code Inspector{% endblock %}
+{% block content %}
+<h1>Log in</h1>
+<p class="sub">Sign in to run scans and see your history.</p>
+<div class="card" style="max-width:420px">
+  <form method="post">{% csrf_token %}
+    {{ form.non_field_errors }}
+    <label for="{{ form.username.id_for_label }}">Username</label>
+    {{ form.username }} {{ form.username.errors }}
+    <label for="{{ form.password.id_for_label }}">Password</label>
+    {{ form.password }} {{ form.password.errors }}
+    <input type="hidden" name="next" value="{{ next }}">
+    <p><button class="btn" type="submit">Log in</button></p>
+  </form>
+  <p class="note">No account yet? <a href="{% url 'signup' %}">Sign up</a></p>
+</div>
+{% endblock %}

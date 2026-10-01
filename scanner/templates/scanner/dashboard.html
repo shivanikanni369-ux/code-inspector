@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}My scans - Code Inspector{% endblock %}
+{% block content %}
+<h1>My scans</h1>
+<p class="sub">Every scan you run is saved here so you can compare results over time.</p>
+<p><a class="btn" href="{% url 'new_scan' %}">+ New scan</a></p>
+
+{% if scans %}
+<div class="card">
+  <table>
+    <thead><tr><th>Grade</th><th>Name</th><th>Score</th><th>High</th><th>Medium</th><th>Low</th><th>Files</th><th>Date</th></tr></thead>
+    <tbody>
+    {% for scan in scans %}
+      <tr>
+        <td><span class="grade {{ scan.grade }}">{{ scan.grade }}</span></td>
+        <td><a href="{% url 'scan_detail' scan.pk %}">{{ scan.name }}</a></td>
+        <td>{{ scan.score }}/100</td>
+        <td>{{ scan.high_count }}</td><td>{{ scan.medium_count }}</td><td>{{ scan.low_count }}</td>
+        <td>{{ scan.files_scanned }}</td>
+        <td>{{ scan.created_at|date:"d M Y, H:i" }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="card"><p>You have no scans yet. Paste a snippet or upload a ZIP of a project to get your first report.</p></div>
+{% endif %}
+{% endblock %}

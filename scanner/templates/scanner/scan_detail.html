@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}{{ scan.name }} - Code Inspector{% endblock %}
+{% block content %}
+<h1>{{ scan.name }}</h1>
+<p class="sub">Scanned {{ scan.files_scanned }} file{{ scan.files_scanned|pluralize }} on {{ scan.created_at|date:"d M Y, H:i" }}</p>
+
+<div class="card">
+  <div class="stats">
+    <span class="grade {{ scan.grade }}" style="width:56px;height:56px;font-size:26px">{{ scan.grade }}</span>
+    <div class="score">{{ scan.score }}<small> / 100 security score</small></div>
+    <div style="flex:1;min-width:240px">
+      {% for bar in bars %}
+        <div class="bar"><span class="lbl">{{ bar.label }}</span>
+          <span class="track"><span class="fill {{ bar.key }}" style="display:block;width:{{ bar.pct }}%"></span></span>
+          <span>{{ bar.count }}</span></div>
+      {% endfor %}
+    </div>
+  </div>
+  <div style="margin-top:14px">
+    <a class="btn ghost" href="{% url 'scan_json' scan.pk %}">Download JSON report</a>
+    <a class="btn ghost" href="{% url 'scan_pdf' scan.pk %}">Download PDF report</a>
+    <a class="btn ghost" href="{% url 'new_scan' %}">Scan again</a>
+    <form method="post" action="{% url 'scan_delete' scan.pk %}" style="display:inline" onsubmit="return confirm('Delete this scan?');">
+      {% csrf_token %}<button class="btn danger" type="submit">Delete</button>
+    </form>
+  </div>
+</div>
+
+<h2>Findings</h2>
+<p class="filters">
+  <a class="{% if not active_severity %}on{% endif %}" href="?">All ({{ scan.total_issues }})</a>
+  <a class="{% if active_severity == 'HIGH' %}on{% endif %}" href="?severity=high">High ({{ scan.high_count }})</a>
+  <a class="{% if active_severity == 'MEDIUM' %}on{% endif %}" href="?severity=medium">Medium ({{ scan.medium_count }})</a>
+  <a class="{% if active_severity == 'LOW' %}on{% endif %}" href="?severity=low">Low ({{ scan.low_count }})</a>
+</p>
+{% if scan.issues_truncated %}<p class="note">This scan found a very large number of issues, so only the first 2,000 are shown.</p>{% endif %}
+
+{% for issue in issues %}
+<div class="card issue">
+  <span class="pill {{ issue.severity|lower }}">{{ issue.get_severity_display }}</span>
+  <span class="pill cat">{{ issue.category }}</span>
+  <span class="note">{{ issue.rule_id }}</span>
+  <h3>{{ issue.title }}</h3>
+  <div class="where">{{ issue.file_path }}:{{ issue.line }}</div>
+  {% if issue.detail %}<div class="note">{{ issue.detail }}</div>{% endif %}
+  {% if issue.snippet %}<pre class="snippet">{{ issue.snippet }}</pre>{% endif %}
+  <div class="fix"><strong>How to fix:</strong> {{ issue.fix }}</div>
+</div>
+{% empty %}
+<div class="card"><p>{% if active_severity %}No {{ active_severity|lower }} findings in this scan.{% else %}No issues found. Nice work!{% endif %}</p></div>
+{% endfor %}
+{% endblock %}

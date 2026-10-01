@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Sign up - Code Inspector{% endblock %}
+{% block content %}
+<h1>Create an account</h1>
+<p class="sub">Free, and your scans stay private to you.</p>
+<div class="card" style="max-width:460px">
+  <form method="post">{% csrf_token %}
+    {{ form.non_field_errors }}
+    {% for field in form %}
+      <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+      {{ field }}
+      {% if field.help_text %}<div class="help">{{ field.help_text|safe }}</div>{% endif %}
+      {{ field.errors }}
+    {% endfor %}
+    <p><button class="btn" type="submit">Sign up</button></p>
+  </form>
+  <p class="note">Already registered? <a href="{% url 'login' %}">Log in</a></p>
+</div>
+{% endblock %}
